@@ -1,32 +1,14 @@
-diff --git a/deps/v8/third_party/zlib/zutil.h b/deps/v8/third_party/zlib/zutil.h
 --- a/deps/v8/third_party/zlib/zutil.h
 +++ b/deps/v8/third_party/zlib/zutil.h
-@@ -24,6 +24,11 @@
- #endif
- 
- #include "zlib.h"
-+
-+/* On Apple platforms, the system provides fdopen(); avoid macro conflicts. */
-+#if defined(__APPLE__) && defined(fdopen)
-+#  undef fdopen
-+#endif
- 
- #if defined(STDC) && !defined(Z_SOLO)
- #  if !(defined(_WIN32_WCE) && defined(_MSC_VER))
-@@ -124,9 +129,11 @@
- #    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
- #      include <unix.h> /* for fdopen */
- #    else
--#      ifndef fdopen
+@@ -155,1 +155,3 @@
 -#        define fdopen(fd,mode) NULL /* No fdopen() */
--#      endif
-+       /* Do not redefine fdopen on modern Apple SDKs to avoid conflicts
-+          with the declaration in <stdio.h>. */
-+#      if !defined(__APPLE__)
-+#        ifndef fdopen
++#        ifndef __APPLE__
 +#          define fdopen(fd,mode) NULL /* No fdopen() */
 +#        endif
-+#      endif
- #    endif
- #  endif
- #endif
+--- a/deps/zlib/zutil.h
++++ b/deps/zlib/zutil.h
+@@ -155,1 +155,3 @@
+-#        define fdopen(fd,mode) NULL /* No fdopen() */
++#        ifndef __APPLE__
++#          define fdopen(fd,mode) NULL /* No fdopen() */
++#        endif
